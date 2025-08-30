@@ -1,5 +1,8 @@
 import random
 import string
+import asyncio
+import aiohttp
+import os
 
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InputMediaPhoto, Message
@@ -24,6 +27,75 @@ from SONALI_MUSIC.utils.logger import play_logs
 from SONALI_MUSIC.utils.stream.stream import stream
 from config import BANNED_USERS, lyrical
 
+# JioSaavn API Configuration
+JIO_SAAVN_API = "https://unofficialapii.vercel.app/api"
+
+async def search_jiosaavn_fast(query: str, limit: int = 5):
+    """Ultra-fast search using JioSaavn API"""
+    try:
+        search_url = f"{JIO_SAAVN_API}/search/{query}"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(search_url, timeout=3) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if data.get("status") == "Success":
+                        results = data.get("results", [])
+                        return results[:limit]
+                return []
+    except Exception as e:
+        print(f"JioSaavn fast search error: {e}")
+        return []
+
+async def get_jiosaavn_song_details_fast(song_id: str):
+    """Get song details from JioSaavn with timeout"""
+    try:
+        song_url = f"{JIO_SAAVN_API}/song/{song_id}"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(song_url, timeout=3) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if data.get("status") == "Success":
+                        return data.get("data", {})
+                return None
+    except Exception as e:
+        print(f"JioSaavn song details error: {e}")
+        return None
+
+async def download_jiosaavn_song_fast(song_id: str):
+    """Fast download from JioSaavn"""
+    try:
+        song_details = await get_jiosaavn_song_details_fast(song_id)
+        if not song_details:
+            return None
+            
+        download_url = song_details.get("downloadUrl", [{}])[0].get("link")
+        if not download_url:
+            return None
+            
+        file_name = f"{song_id}.mp3"
+        download_folder = "downloads"
+        os.makedirs(download_folder, exist_ok=True)
+        file_path = os.path.join(download_folder, file_name)
+        
+        # Check if file already exists
+        if os.path.exists(file_path):
+            return file_path
+            
+        async with aiohttp.ClientSession() as session:
+            async with session.get(download_url, timeout=10) as response:
+                if response.status == 200:
+                    with open(file_path, 'wb') as f:
+                        while True:
+                            chunk = await response.content.read(8192)
+                            if not chunk:
+                                break
+                            f.write(chunk)
+                    return file_path
+        return None
+    except Exception as e:
+        print(f"JioSaavn fast download error: {e}")
+        return None
+
 
 @app.on_message(
    filters.command(["play", "vplay", "cplay", "cvplay", "playforce", "vplayforce", "cplayforce", "cvplayforce"] ,prefixes=["/", "!", "%", ",", "", ".", "@", "#"])
@@ -44,7 +116,7 @@ async def play_commnd(
     fplay,
 ):
     mystic = await message.reply_text(
-        _["play_2"].format(channel) if channel else _["play_1"]
+        "🔍 **Ultra-Fast Search Mode**\n\nSearching for your song..." if not channel else _["play_2"].format(channel)
     )
     plist_id = None
     slider = None
@@ -318,10 +390,58 @@ async def play_commnd(
         query = message.text.split(None, 1)[1]
         if "-v" in query:
             query = query.replace("-v", "")
+            video = True
+        
+        await mystic.edit_text(f"🔍 **Searching for:** `{query}`\n\n⚡ **Using Ultra-Fast Search Mode**")
+        
+        # Try JioSaavn first for ultra-fast results
+        try:
+            jio_results = await search_jiosaavn_fast(query, 1)
+            if jio_results:
+                jio_song = jio_results[0]
+                song_id = jio_song.get("id")
+                title = jio_song.get("name", "Unknown Title")
+                artist = jio_song.get("primaryArtists", "Unknown Artist")
+                duration = jio_song.get("duration", "0:00")
+                
+                # Try to download from JioSaavn
+                file_path = await download_jiosaavn_song_fast(song_id)
+                if file_path:
+                    details = {
+                        "title": f"{title} - {artist}",
+                        "link": f"https://www.jiosaavn.com/song/{song_id}",
+                        "path": file_path,
+                        "dur": duration,
+                    }
+                    
+                    try:
+                        await stream(
+                            _,
+                            mystic,
+                            user_id,
+                            details,
+                            chat_id,
+                            user_name,
+                            message.chat.id,
+                            video=video,
+                            streamtype="jiosaavn",
+                            forceplay=fplay,
+                        )
+                        await mystic.delete()
+                        return await play_logs(message, streamtype="JioSaavn Fast")
+                    except Exception as e:
+                        print(f"JioSaavn stream error: {e}")
+                        # Fallback to YouTube
+                        pass
+        except Exception as e:
+            print(f"JioSaavn search error: {e}")
+        
+        # Fallback to YouTube search
         try:
             details, track_id = await YouTube.track(query)
         except:
             return await mystic.edit_text(_["play_3"])
+        
         streamtype = "youtube"
     if str(playmode) == "Direct":
         if not plist_type:
