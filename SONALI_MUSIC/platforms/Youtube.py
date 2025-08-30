@@ -18,6 +18,8 @@ import aiohttp
 import config
 from config import API_URL, API_KEY
 
+# JioSaavn API Configuration
+JIO_SAAVN_API = "https://unofficialapii.vercel.app"
 
 def cookie_txt_file():
     cookie_dir = f"{os.getcwd()}/cookies"
@@ -26,6 +28,36 @@ def cookie_txt_file():
     cookie_file = os.path.join(cookie_dir, random.choice(cookies_files))
     return cookie_file
 
+async def search_jiosaavn(query: str, limit: int = 5):
+    """Search songs on JioSaavn for faster results"""
+    try:
+        search_url = f"{JIO_SAAVN_API}/search/{query}"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(search_url, timeout=5) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if data.get("status") == "Success":
+                        results = data.get("results", [])
+                        return results[:limit]
+                return []
+    except Exception as e:
+        print(f"JioSaavn search error: {e}")
+        return []
+
+async def get_jiosaavn_song_details(song_id: str):
+    """Get detailed song information from JioSaavn"""
+    try:
+        song_url = f"{JIO_SAAVN_API}/song/{song_id}"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(song_url, timeout=5) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if data.get("status") == "Success":
+                        return data.get("data", {})
+                return None
+    except Exception as e:
+        print(f"JioSaavn song details error: {e}")
+        return None
 
 async def download_song(link: str):
     video_id = link.split('v=')[-1].split('&')[0]
@@ -34,7 +66,6 @@ async def download_song(link: str):
     for ext in ["mp3", "m4a", "webm"]:
         file_path = f"{download_folder}/{video_id}.{ext}"
         if os.path.exists(file_path):
-            #print(f"File already exists: {file_path}")
             return file_path
         
     song_url = f"{API_URL}/song/{video_id}?api={API_KEY}"
@@ -47,7 +78,7 @@ async def download_song(link: str):
                     data = await response.json()
                     status = data.get("status", "").lower()
                     if status == "downloading":
-                        await asyncio.sleep(2)
+                        await asyncio.sleep(1)  # Reduced sleep time for faster response
                         continue
                     elif status == "error":
                         error_msg = data.get("error") or data.get("message") or "Unknown error"
@@ -86,6 +117,41 @@ async def download_song(link: str):
             print(f"Error occurred while downloading song: {e}")
             return None
     return None
+
+async def download_jiosaavn_song(song_id: str):
+    """Download song directly from JioSaavn"""
+    try:
+        song_details = await get_jiosaavn_song_details(song_id)
+        if not song_details:
+            return None
+            
+        download_url = song_details.get("downloadUrl", [{}])[0].get("link")
+        if not download_url:
+            return None
+            
+        file_name = f"{song_id}.mp3"
+        download_folder = "downloads"
+        os.makedirs(download_folder, exist_ok=True)
+        file_path = os.path.join(download_folder, file_name)
+        
+        # Check if file already exists
+        if os.path.exists(file_path):
+            return file_path
+            
+        async with aiohttp.ClientSession() as session:
+            async with session.get(download_url) as response:
+                if response.status == 200:
+                    with open(file_path, 'wb') as f:
+                        while True:
+                            chunk = await response.content.read(8192)
+                            if not chunk:
+                                break
+                            f.write(chunk)
+                    return file_path
+        return None
+    except Exception as e:
+        print(f"JioSaavn download error: {e}")
+        return None
 
 async def check_file_size(link):
     async def get_format_info(link):
@@ -176,6 +242,24 @@ class YouTubeAPI:
         if offset in (None,):
             return None
         return text[offset : offset + length]
+
+    async def fast_search(self, query: str, limit: int = 5):
+        """Fast search using JioSaavn API first, then YouTube as fallback"""
+        try:
+            # Try JioSaavn first for faster results
+            jio_results = await search_jiosaavn(query, limit)
+            if jio_results:
+                return jio_results
+            
+            # Fallback to YouTube search
+            results = VideosSearch(query, limit=limit)
+            youtube_results = (await results.next()).get("result", [])
+            return youtube_results
+        except Exception as e:
+            print(f"Fast search error: {e}")
+            # Final fallback to YouTube
+            results = VideosSearch(query, limit=limit)
+            return (await results.next()).get("result", [])
 
     async def details(self, link: str, videoid: Union[bool, str] = None):
         if videoid:
