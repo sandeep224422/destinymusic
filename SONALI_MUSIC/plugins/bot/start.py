@@ -26,14 +26,14 @@ from config import BANNED_USERS
 from strings import get_string
 
 NEXIO = [
-    "https://files.catbox.moe/m0a0dz.jpg",
-    "https://files.catbox.moe/5cp1u6.jpg",
-    "https://files.catbox.moe/rz00aq.jpg",
-    "https://files.catbox.moe/lldb7w.jpg",
-    "https://files.catbox.moe/k2zqfo.jpg",
-    "https://files.catbox.moe/sf5od2.jpg",
-    "https://files.catbox.moe/3q7csm.jpg",
-    "https://files.catbox.moe/32nivd.jpg",
+    "https://files.catbox.moe/i493lf.jpg",
+    "https://files.catbox.moe/i493lf.jpg",
+    "https://files.catbox.moe/i493lf.jpg",
+    "https://files.catbox.moe/i493lf.jpg",
+    "https://files.catbox.moe/i493lf.jpg",
+    "https://files.catbox.moe/i493lf.jpg",
+    "https://files.catbox.moe/i493lf.jpg",
+    "https://files.catbox.moe/i493lf.jpg",
 ]
 
 
