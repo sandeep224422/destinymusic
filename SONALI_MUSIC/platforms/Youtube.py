@@ -19,7 +19,7 @@ import config
 from config import API_URL, API_KEY
 
 # JioSaavn API Configuration
-JIO_SAAVN_API = "https://unofficialapii.vercel.app"
+JIO_SAAVN_API = "https://unofficialapii.vercel.app/api"
 
 def cookie_txt_file():
     cookie_dir = f"{os.getcwd()}/cookies"
