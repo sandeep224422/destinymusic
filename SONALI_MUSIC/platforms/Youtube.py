@@ -1,7 +1,6 @@
 import asyncio
 import os
 import re
-import json
 import random
 import aiohttp
 import yt_dlp
@@ -9,12 +8,10 @@ from typing import Union
 from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
 from youtubesearchpython.__future__ import VideosSearch
-from SONALI_MUSIC.utils.database import is_on_off
 from SONALI_MUSIC.utils.formatters import time_to_seconds
 
 # === CONFIG ===
-API_URL = "https://apikeyy-zeta.vercel.app/api"
-API_KEY = "your_api_key_here"   # Agar zarurat ho
+API_URL = "https://apikeyy-zeta.vercel.app/api"   # API key not required
 
 def cookie_txt_file():
     cookie_dir = f"{os.getcwd()}/cookies"
@@ -40,7 +37,7 @@ async def download_song(link: str):
             return file_path
 
     # --- Step 1: Try API download ---
-    song_url = f"{API_URL}/song/{video_id}?api={API_KEY}"
+    song_url = f"{API_URL}/song/{video_id}"
     try:
         async with aiohttp.ClientSession() as session:
             while True:
@@ -165,7 +162,6 @@ class YouTubeAPI:
         API first, fallback to yt-dlp.
         """
         try:
-            # Try API first
             song_file = await download_song(link)
             if song_file:
                 return 1, song_file
