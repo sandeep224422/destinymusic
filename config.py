@@ -9,8 +9,8 @@ API_ID = int(getenv("API_ID"))
 API_HASH = getenv("API_HASH")
 
 BOT_TOKEN = getenv("BOT_TOKEN")
-OWNER_USERNAME = getenv("OWNER_USERNAME","ll_ALPHA_BABY_lll")
-BOT_USERNAME = getenv("BOT_USERNAME" , "TAMANNA_MUSIC_BOT")
+OWNER_USERNAME = getenv("OWNER_USERNAME","crush_hu_tera")
+BOT_USERNAME = getenv("BOT_USERNAME" , "destinyy_music_bot")
 BOT_NAME = getenv("BOT_NAME" , "˹sᴏɴᴧʟɪ ꭙ ᴍᴜsɪᴄ˼ ♪ [ ᴛᴘʙ ]™")
 ASSUSERNAME = getenv("ASSUSERNAME" , "ALPHA")
 MONGO_DB_URI = getenv("MONGO_DB_URI", None)
@@ -24,12 +24,12 @@ API_URL = getenv("API_URL", 'https://api.thequickearn.xyz') #youtube song url
 API_KEY = getenv("API_KEY", 'NxGBNexGenBotsad3e6e') # youtube song api key, get it from ht
 
 
-UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/HEERIYE143/TAMANNA_MUSIC",)
+UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/Suraj08832/destinymusics",)
 UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "main")
 GIT_TOKEN = getenv("GIT_TOKEN", None)
 PRIVACY_LINK = getenv("PRIVACY_LINK", "https://telegra.ph/Privacy-Policy-for-YukkiMusic-08-30")
-SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/ll_P_U_L_lI")
-SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/+PyGZAEg3Wg8yNWQ1")
+SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/about_zefron")
+SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/zefron_world")
 AUTO_LEAVING_ASSISTANT = getenv("AUTO_LEAVING_ASSISTANT", "False")
 AUTO_LEAVE_ASSISTANT_TIME = int(getenv("ASSISTANT_LEAVE_TIME", "9000"))
 SONG_DOWNLOAD_DURATION = int(getenv("SONG_DOWNLOAD_DURATION", "9999999"))
