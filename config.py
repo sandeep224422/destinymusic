@@ -24,7 +24,7 @@ API_URL = getenv("API_URL", 'https://api.thequickearn.xyz') #youtube song url
 API_KEY = getenv("API_KEY", 'NxGBNexGenBotsad3e6e') # youtube song api key, get it from ht
 
 
-UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/Suraj08832/destinymusics",)
+UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/sandeep224422/destinymusic",)
 UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "main")
 GIT_TOKEN = getenv("GIT_TOKEN", None)
 PRIVACY_LINK = getenv("PRIVACY_LINK", "https://telegra.ph/Privacy-Policy-for-YukkiMusic-08-30")
