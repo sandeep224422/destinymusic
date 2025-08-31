@@ -11,7 +11,8 @@ from youtubesearchpython.__future__ import VideosSearch
 from SONALI_MUSIC.utils.formatters import time_to_seconds
 
 # === CONFIG ===
-API_URL = "https://apikeyy-zeta.vercel.app/api/"   # API key not required
+API_URL = "https://tgmusic.fallenapi.fun"   # Updated API base
+API_KEY = "1b5c0a_tfOl4UWXMUtgGy8J01_I79Jx9vNNUGiA"   # Your API Key
 
 def cookie_txt_file():
     cookie_dir = f"{os.getcwd()}/cookies"
@@ -38,10 +39,12 @@ async def download_song(link: str):
 
     # --- Step 1: Try API download ---
     song_url = f"{API_URL}/song/{video_id}"
+    headers = {"Authorization": f"Bearer {API_KEY}"}
+
     try:
         async with aiohttp.ClientSession() as session:
             while True:
-                async with session.get(song_url) as response:
+                async with session.get(song_url, headers=headers) as response:
                     if response.status != 200:
                         raise Exception(f"API request failed: {response.status}")
                     data = await response.json()
@@ -57,7 +60,7 @@ async def download_song(link: str):
                         file_format = data.get("format", "mp3").lower()
                         file_path = os.path.join(download_folder, f"{video_id}.{file_format}")
 
-                        async with session.get(download_url) as file_response:
+                        async with session.get(download_url, headers=headers) as file_response:
                             with open(file_path, 'wb') as f:
                                 while True:
                                     chunk = await file_response.content.read(8192)
