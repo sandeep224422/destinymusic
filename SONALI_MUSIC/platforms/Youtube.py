@@ -11,7 +11,7 @@ from youtubesearchpython.__future__ import VideosSearch
 from SONALI_MUSIC.utils.formatters import time_to_seconds
 
 # === CONFIG ===
-API_URL = "https://apikeyy-zeta.vercel.app/api"   # API key not required
+API_URL = "https://apikeyy-zeta.vercel.app/api/"   # API key not required
 
 def cookie_txt_file():
     cookie_dir = f"{os.getcwd()}/cookies"
